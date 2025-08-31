@@ -1,117 +1,359 @@
-import React, { useState } from 'react';
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أداة النشر التلقائي في بلوجر</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6, #93c5fd);
+        }
+        .card-bg {
+            background-color: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn-primary {
+            @apply bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 disabled:bg-gray-500 disabled:cursor-not-allowed;
+        }
+        .input-field {
+            @apply w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3b82f6;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="gradient-bg text-white min-h-screen flex items-center justify-center p-4">
 
-// SVG for the Google Icon
-const GoogleIcon = () => (
-  <svg className="w-6 h-6 mr-3" viewBox="0 0 48 48">
-    <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"></path>
-    <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z"></path>
-    <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.222 0-9.618-3.226-11.283-7.94l-6.522 5.025C9.505 39.556 16.227 44 24 44z"></path>
-    <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C42.012 36.49 44 30.863 44 24c0-1.341-.138-2.65-.389-3.917z"></path>
-  </svg>
-);
+    <div class="w-full max-w-4xl mx-auto">
+        <div id="main-container" class="card-bg rounded-2xl shadow-2xl p-8 transition-all duration-500">
+            
+            <!-- Header Section -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold mb-2">أداة النشر التلقائي في بلوجر</h1>
+                <p class="text-blue-200">أنشئ وانشر مقالاتك بضغطة زر باستخدام الذكاء الاصطناعي</p>
+            </div>
 
-// Custom Logo SVG
-// This is an abstract logo representing "Google Claude" or a modern tech concept.
-const CustomLogo = () => (
-    <svg height="80" width="80" viewBox="0 0 100 100" className="mx-auto mb-4">
-        <defs>
-            <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style={{stopColor: '#4F46E5', stopOpacity: 1}} />
-                <stop offset="100%" style={{stopColor: '#A855F7', stopOpacity: 1}} />
-            </linearGradient>
-        </defs>
-        <path 
-            d="M50 2 a 48 48 0 0 1 0 96 a 48 48 0 0 1 0 -96" 
-            fill="none" 
-            stroke="url(#logoGradient)" 
-            strokeWidth="4" 
-        />
-        <path 
-            d="M30 50 a 20 20 0 0 1 40 0" 
-            fill="none" 
-            stroke="url(#logoGradient)" 
-            strokeWidth="4" 
-            strokeLinecap="round"
-        />
-        <circle cx="50" cy="30" r="6" fill="url(#logoGradient)" />
-    </svg>
-);
+            <!-- Login Section -->
+            <div id="login-section" class="text-center">
+                <p class="mb-6 text-lg">الرجاء تسجيل الدخول بحساب Google الخاص بك للوصول إلى مدوناتك.</p>
+                <button id="login-button" class="btn-primary inline-flex items-center gap-3">
+                    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.574l6.19,5.238C39.986,35.66,44,30.134,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path></svg>
+                    تسجيل الدخول باستخدام Google
+                </button>
+            </div>
 
+            <!-- Main Application Section (hidden by default) -->
+            <div id="app-section" class="hidden">
+                <div id="user-info" class="text-center mb-8 p-4 rounded-lg bg-gray-900/50 flex items-center justify-center gap-4">
+                    <img id="user-avatar" class="w-12 h-12 rounded-full" src="" alt="User Avatar">
+                    <div>
+                        <p class="font-semibold" id="user-name"></p>
+                        <p class="text-sm text-gray-400" id="user-email"></p>
+                    </div>
+                    <button id="logout-button" class="ml-auto bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">تسجيل الخروج</button>
+                </div>
 
-export default function App() {
-  const [isLoading, setIsLoading] = useState(false);
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Input Form -->
+                    <div class="space-y-6">
+                        <div>
+                            <label for="blog-id" class="block mb-2 font-semibold text-blue-300">معرف المدونة (Blog ID)</label>
+                            <input type="text" id="blog-id" class="input-field" placeholder="مثال: 1234567890123456789">
+                        </div>
+                        <div>
+                            <label for="article-topic" class="block mb-2 font-semibold text-blue-300">موضوع المقالة</label>
+                            <input type="text" id="article-topic" class="input-field" placeholder="اكتب الفكرة الرئيسية لمقالتك هنا">
+                        </div>
+                        <div>
+                            <label for="article-style" class="block mb-2 font-semibold text-blue-300">أسلوب الكتابة</label>
+                            <textarea id="article-style" class="input-field min-h-[100px]" placeholder="مثال: اكتب بأسلوب احترافي، استخدم عناوين فرعية، وأضف قائمة نقطية."></textarea>
+                        </div>
+                        <button id="publish-button" class="btn-primary w-full text-lg">
+                            <span id="button-text">أنشئ وانشر الآن</span>
+                            <div id="button-loader" class="loader hidden mx-auto" style="width: 25px; height: 25px; border-width: 3px;"></div>
+                        </button>
+                    </div>
 
-  // This function would handle the actual Google Sign-In logic.
-  // It requires setting up a project with Google Cloud Platform and using a library like 'react-google-login' or Firebase Authentication.
-  const handleGoogleSignIn = () => {
-    setIsLoading(true);
-    console.log("Initiating Google Sign-In...");
-    // In a real application, you would call your Google Auth provider here.
-    // For demonstration, we'll just simulate a network delay.
-    setTimeout(() => {
-      console.log("Sign-In complete (simulated).");
-      setIsLoading(false);
-      // Here you would redirect the user or update the application state.
-    }, 2000);
-  };
-
-  return (
-    // Main container with a dark background and centered content
-    <div className="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-4 font-sans" dir="rtl">
-      <div className="w-full max-w-md">
-        
-        {/* Login Card */}
-        <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl shadow-2xl p-8 transform transition-all duration-500 hover:scale-105">
-          
-          {/* Logo and Header */}
-          <div className="text-center mb-8">
-            <CustomLogo />
-            <h1 className="text-3xl font-bold text-gray-100">
-              تسجيل الدخول إلى حسابك
-            </h1>
-            <p className="text-gray-400 mt-3">
-              استخدم حساب Google الخاص بك للمتابعة. تصميم عصري وآمن لتجربة فريدة.
-            </p>
-          </div>
-          
-          {/* Google Sign-In Button */}
-          <div>
-            <button
-              onClick={handleGoogleSignIn}
-              disabled={isLoading}
-              className={`
-                w-full flex items-center justify-center px-4 py-3 
-                border border-gray-600 rounded-lg 
-                bg-gray-700 hover:bg-gray-600 
-                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500
-                transition-all duration-300 ease-in-out
-                ${isLoading ? 'cursor-not-allowed opacity-60' : ''}
-              `}
-            >
-              {isLoading ? (
-                // Loading spinner
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              ) : (
-                <GoogleIcon />
-              )}
-              <span className="font-semibold">
-                {isLoading ? 'جاري التسجيل...' : 'تسجيل الدخول باستخدام جوجل'}
-              </span>
-            </button>
-          </div>
-
+                    <!-- Status and Log -->
+                    <div class="card-bg rounded-lg p-6">
+                        <h3 class="text-2xl font-bold mb-4 border-b border-gray-600 pb-2">سجل الحالة</h3>
+                        <div id="status-log" class="space-y-3 h-64 overflow-y-auto pr-2">
+                           <p class="text-gray-400">في انتظار بدء العملية...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        {/* Footer */}
-        <div className="text-center mt-8">
-          <p className="text-sm text-gray-500">
-            &copy; {new Date().getFullYear()} Claude-Google Demo. جميع الحقوق محفوظة.
-          </p>
-        </div>
-      </div>
     </div>
-  );
-}
+
+    <script>
+        // تم تحديث معرف العميل (Client ID) بناءً على طلبك.
+        // تحذير أمني: لا تقم أبداً بوضع Client Secret هنا! إنه مخصص للخوادم فقط.
+        const CLIENT_ID = '776046452293-a1ha9l150i26ak2oo6hk7i7j28iq5cu8.apps.googleusercontent.com';
+        const SCOPES = 'https://www.googleapis.com/auth/blogger';
+        
+        let tokenClient;
+        let gapiInited = false;
+        let gisInited = false;
+
+        const loginSection = document.getElementById('login-section');
+        const appSection = document.getElementById('app-section');
+        const loginButton = document.getElementById('login-button');
+        const logoutButton = document.getElementById('logout-button');
+        const publishButton = document.getElementById('publish-button');
+        const statusLog = document.getElementById('status-log');
+
+        // --- Initialization ---
+        function gapiLoaded() {
+            gapi.load('client', initializeGapiClient);
+        }
+
+        async function initializeGapiClient() {
+            await gapi.client.init({
+                apiKey: null, // Not needed for OAuth 2.0
+                discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/blogger/v3/rest'],
+            });
+            gapiInited = true;
+            maybeEnableButtons();
+        }
+
+        function gisLoaded() {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: CLIENT_ID,
+                scope: SCOPES,
+                callback: '', // defined later
+            });
+            gisInited = true;
+            maybeEnableButtons();
+        }
+        
+        function maybeEnableButtons() {
+            if (gapiInited && gisInited) {
+                loginButton.disabled = false;
+            }
+        }
+
+        // --- UI & State Management ---
+
+        function updateUi(tokenResponse) {
+            if (tokenResponse && tokenResponse.access_token) {
+                loginSection.classList.add('hidden');
+                appSection.classList.remove('hidden');
+                fetchUserInfo();
+            } else {
+                loginSection.classList.remove('hidden');
+                appSection.classList.add('hidden');
+            }
+        }
+        
+        async function fetchUserInfo() {
+             try {
+                const res = await gapi.client.blogger.users.get({ 'userId': 'self' });
+                document.getElementById('user-name').textContent = res.result.displayName;
+                document.getElementById('user-email').textContent = `مرحباً بك`;
+                document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(res.result.displayName)}&background=2563eb&color=fff`;
+            } catch (err) {
+                logStatus(`❌ خطأ في جلب معلومات المستخدم: ${err.message}`, 'error');
+                console.error(err);
+            }
+        }
+
+        function logStatus(message, type = 'info') {
+            const p = document.createElement('p');
+            const time = new Date().toLocaleTimeString('ar-EG');
+            let icon = 'ℹ️';
+            if (type === 'success') {
+                p.className = 'text-green-400';
+                icon = '✅';
+            } else if (type === 'error') {
+                p.className = 'text-red-400';
+                icon = '❌';
+            } else if (type === 'loading') {
+                p.className = 'text-yellow-400';
+                icon = '⏳';
+            } else {
+                 p.className = 'text-blue-300';
+            }
+
+            p.innerHTML = `<span class="font-mono text-xs text-gray-500">[${time}]</span> ${icon} ${message}`;
+            statusLog.appendChild(p);
+            statusLog.scrollTop = statusLog.scrollHeight;
+        }
+
+        function setPublishButtonState(isLoading) {
+            const buttonText = document.getElementById('button-text');
+            const buttonLoader = document.getElementById('button-loader');
+            if (isLoading) {
+                publishButton.disabled = true;
+                buttonText.classList.add('hidden');
+                buttonLoader.classList.remove('hidden');
+            } else {
+                publishButton.disabled = false;
+                buttonText.classList.remove('hidden');
+                buttonLoader.classList.add('hidden');
+            }
+        }
+
+        // --- Authentication Handlers ---
+        
+        loginButton.addEventListener('click', () => {
+            tokenClient.callback = (resp) => {
+                if (resp.error !== undefined) {
+                    throw (resp);
+                }
+                gapi.client.setToken(resp);
+                updateUi(resp);
+            };
+
+            if (gapi.client.getToken() === null) {
+                tokenClient.requestAccessToken({prompt: 'consent'});
+            } else {
+                tokenClient.requestAccessToken({prompt: ''});
+            }
+        });
+        
+        logoutButton.addEventListener('click', () => {
+            const token = gapi.client.getToken();
+            if (token !== null) {
+                google.accounts.oauth2.revoke(token.access_token, () => {
+                    gapi.client.setToken('');
+                    updateUi(null);
+                    logStatus('تم تسجيل الخروج بنجاح.');
+                });
+            }
+        });
+
+        // --- Main Application Logic ---
+
+        publishButton.addEventListener('click', async () => {
+            const blogId = document.getElementById('blog-id').value.trim();
+            const articleTopic = document.getElementById('article-topic').value.trim();
+            const articleStyle = document.getElementById('article-style').value.trim();
+
+            if (!blogId || !articleTopic) {
+                logStatus('الرجاء إدخال معرف المدونة وموضوع المقالة.', 'error');
+                return;
+            }
+
+            statusLog.innerHTML = ''; // Clear previous logs
+            setPublishButtonState(true);
+
+            try {
+                // 1. Generate content with Gemini
+                logStatus('جاري إنشاء محتوى المقالة باستخدام Gemini...', 'loading');
+                const article = await generateArticle(articleTopic, articleStyle);
+                if (!article || !article.title || !article.content) {
+                    throw new Error("فشل Gemini في إنشاء محتوى صالح.");
+                }
+                logStatus('تم إنشاء المحتوى بنجاح.', 'success');
+                
+                // 2. Publish to Blogger
+                logStatus('جاري نشر المقالة في مدونتك...', 'loading');
+                const postUrl = await publishToBlogger(blogId, article.title, article.content);
+                logStatus(`تم نشر المقالة بنجاح! <a href="${postUrl}" target="_blank" class="text-blue-400 underline hover:text-blue-300">عرض المقالة</a>`, 'success');
+
+            } catch (error) {
+                console.error("Error during publishing process:", error);
+                const errorMessage = error.result ? JSON.stringify(error.result.error) : error.message;
+                logStatus(`حدث خطأ: ${errorMessage}`, 'error');
+            } finally {
+                setPublishButtonState(false);
+            }
+        });
+
+        async function generateArticle(topic, style) {
+            const apiKey = ""; // Provided by the environment
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            
+            const systemPrompt = `أنت كاتب محتوى خبير متخصص في كتابة مقالات للمدونات.
+            مهمتك هي إنشاء مقالة مُحسَّنة لمحركات البحث (SEO) وجذابة بناءً على الموضوع والتعليمات المقدمة.
+            يجب أن يكون الناتج بتنسيق JSON يحتوي على مفتاحين: "title" (العنوان) و "content" (المحتوى بتنسيق HTML).
+            المحتوى يجب أن يكون HTML كامل، استخدم <h1> للعناوين الرئيسية، <h2> للعناوين الفرعية، <p> للفقرات، و <ul>/<li> للقوائم إذا لزم الأمر.
+            لا تقم بتضمين markdown مثل ** أو ##. استخدم <strong> أو علامات HTML المقابلة.
+            تأكد من أن المحتوى باللغة العربية.`;
+            
+            const userPrompt = `الموضوع: "${topic}"\nالتعليمات الإضافية والأسلوب: "${style || 'اكتب مقالة قياسية حول الموضوع.'}"`;
+
+            const payload = {
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                contents: [{ parts: [{ text: userPrompt }] }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            "title": { "type": "STRING" },
+                            "content": { "type": "STRING" }
+                        },
+                        required: ["title", "content"]
+                    }
+                }
+            };
+            
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`API Error (${response.status}): ${errorData.error.message}`);
+                }
+                
+                const result = await response.json();
+                const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (jsonText) {
+                    return JSON.parse(jsonText);
+                } else {
+                    throw new Error("لم يتم العثور على محتوى في استجابة Gemini.");
+                }
+
+            } catch (error) {
+                 console.error("Gemini API call failed:", error);
+                 throw error;
+            }
+        }
+
+        async function publishToBlogger(blogId, title, content) {
+            try {
+                const response = await gapi.client.blogger.posts.insert({
+                    'blogId': blogId,
+                    'resource': {
+                        'title': title,
+                        'content': content
+                    },
+                    'isDraft': false
+                });
+                return response.result.url;
+            } catch (err) {
+                console.error("Blogger API Error:", err);
+                throw err;
+            }
+        }
+
+    </script>
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+</body>
+</html>
+
